@@ -3,13 +3,17 @@
 A bright, mobile-first dashboard for small business owners to track income and
 expenses. Built with plain HTML/CSS/JS — no build step, no dependencies.
 
+**Live demo:** https://nitzaned-hash.github.io/dashboard_2_16.9.26/
+
 See [spec.md](spec.md) for the full product spec.
 
 ## Running it
 
-Just open [index.html](index.html) in any browser. There's no server or build
-step required. Data is stored in the browser's `localStorage`, so it persists
-between visits on the same device/browser but isn't shared across devices.
+Open the [live demo](https://nitzaned-hash.github.io/dashboard_2_16.9.26/), or
+just open [index.html](index.html) locally in any browser — there's no server
+or build step required either way. Data is stored in the browser's
+`localStorage`, so it persists between visits on the same device/browser but
+isn't shared across devices.
 
 A set of 25 sample transactions (9 income, 16 expense, spanning about three
 months, including recurring rent/payroll/utilities) is seeded automatically

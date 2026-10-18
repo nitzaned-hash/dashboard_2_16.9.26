@@ -26,7 +26,11 @@ other than `origin`.
 
 ## Repo facts
 
-- Remote: `origin` → `https://github.com/nitzaned-hash/dashboard_2_16.9.26` (private)
+- Remote: `origin` → `https://github.com/nitzaned-hash/dashboard_2_16.9.26` (public —
+  switched from private so GitHub Pages could be enabled on the free plan)
+- Live site: https://nitzaned-hash.github.io/dashboard_2_16.9.26/ (GitHub
+  Pages, served from `master` / `/`). Pages auto-redeploys on every push to
+  `master`, so no extra step is needed after a normal commit + push.
 - Default branch: `master`
 - `.claude/` is gitignored (local dev-preview config with machine-specific
   paths) — never force-add it.
