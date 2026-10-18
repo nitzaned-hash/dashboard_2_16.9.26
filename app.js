@@ -729,25 +729,45 @@ window.addEventListener('resize', () => {
    ========================================================= */
 function maybeSeed() {
   if (DataStore.getAll().length > 0) return;
-  if (localStorage.getItem('bp_seeded_v1')) return;
+  if (localStorage.getItem('bp_seeded_v2')) return;
   const cats = CategoryStore.getAll();
   const find = id => cats.find(c => c.id === id).id;
   const today = new Date();
   const sample = [
+    // Income
     { type: 'income', amount: 4200, daysAgo: 1, categoryId: find('sales'), notes: 'Invoice #204', recurring: '' },
     { type: 'income', amount: 1500, daysAgo: 6, categoryId: find('services'), notes: 'Consulting session', recurring: '' },
+    { type: 'income', amount: 2600, daysAgo: 18, categoryId: find('sales'), notes: 'Pop-up market', recurring: '' },
+    { type: 'income', amount: 3100, daysAgo: 25, categoryId: find('sales'), notes: 'Online store orders', recurring: '' },
+    { type: 'income', amount: 1900, daysAgo: 34, categoryId: find('services'), notes: 'Workshop fee', recurring: '' },
+    { type: 'income', amount: 5400, daysAgo: 46, categoryId: find('sales'), notes: 'Wholesale order', recurring: '' },
+    { type: 'income', amount: 1500, daysAgo: 58, categoryId: find('services'), notes: 'Consulting retainer', recurring: 'monthly' },
+    { type: 'income', amount: 3300, daysAgo: 70, categoryId: find('sales'), notes: 'Holiday pop-up', recurring: '' },
+    { type: 'income', amount: 2200, daysAgo: 88, categoryId: find('sales'), notes: 'Spring sale', recurring: '' },
+
+    // Expenses
     { type: 'expense', amount: 3200, daysAgo: 2, categoryId: find('rent'), notes: 'Studio rent', recurring: 'monthly' },
+    { type: 'expense', amount: 149, daysAgo: 7, categoryId: find('other'), notes: 'Software subscription', recurring: 'monthly' },
     { type: 'expense', amount: 420, daysAgo: 4, categoryId: find('supplies'), notes: 'Packaging materials', recurring: '' },
     { type: 'expense', amount: 1800, daysAgo: 9, categoryId: find('payroll'), notes: 'Part-time assistant', recurring: 'monthly' },
     { type: 'expense', amount: 260, daysAgo: 12, categoryId: find('utilities'), notes: 'Electricity', recurring: 'monthly' },
     { type: 'expense', amount: 350, daysAgo: 15, categoryId: find('marketing'), notes: 'Social ads', recurring: '' },
-    { type: 'income', amount: 2600, daysAgo: 18, categoryId: find('sales'), notes: 'Pop-up market', recurring: '' },
+    { type: 'expense', amount: 680, daysAgo: 20, categoryId: find('supplies'), notes: 'Raw materials', recurring: '' },
+    { type: 'expense', amount: 210, daysAgo: 27, categoryId: find('marketing'), notes: 'Flyers printing', recurring: '' },
+    { type: 'expense', amount: 3200, daysAgo: 32, categoryId: find('rent'), notes: 'Studio rent', recurring: 'monthly' },
+    { type: 'expense', amount: 1800, daysAgo: 39, categoryId: find('payroll'), notes: 'Part-time assistant', recurring: 'monthly' },
+    { type: 'expense', amount: 245, daysAgo: 42, categoryId: find('utilities'), notes: 'Electricity', recurring: 'monthly' },
+    { type: 'expense', amount: 300, daysAgo: 50, categoryId: find('marketing'), notes: 'Local ads', recurring: '' },
+    { type: 'expense', amount: 390, daysAgo: 55, categoryId: find('supplies'), notes: 'Packaging restock', recurring: '' },
+    { type: 'expense', amount: 3200, daysAgo: 62, categoryId: find('rent'), notes: 'Studio rent', recurring: 'monthly' },
+    { type: 'expense', amount: 1800, daysAgo: 69, categoryId: find('payroll'), notes: 'Part-time assistant', recurring: 'monthly' },
+    { type: 'expense', amount: 900, daysAgo: 75, categoryId: find('marketing'), notes: 'Trade show booth', recurring: '' },
   ];
   for (const s of sample) {
     const d = addDays(today, -s.daysAgo);
     DataStore.add({ type: s.type, amount: s.amount, date: d.toISOString().slice(0, 10), categoryId: s.categoryId, notes: s.notes, recurring: s.recurring });
   }
-  localStorage.setItem('bp_seeded_v1', '1');
+  localStorage.setItem('bp_seeded_v2', '1');
 }
 
 /* =========================================================

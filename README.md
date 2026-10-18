@@ -11,8 +11,10 @@ Just open [index.html](index.html) in any browser. There's no server or build
 step required. Data is stored in the browser's `localStorage`, so it persists
 between visits on the same device/browser but isn't shared across devices.
 
-A few sample transactions are seeded automatically on first load so the
-dashboard isn't empty — edit or delete them freely, they won't come back.
+A set of 25 sample transactions (9 income, 16 expense, spanning about three
+months, including recurring rent/payroll/utilities) is seeded automatically
+on first load so the dashboard isn't empty — edit or delete them freely,
+they won't come back.
 
 ## Features
 
