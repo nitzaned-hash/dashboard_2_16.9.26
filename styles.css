@@ -20,6 +20,8 @@
   --expense-tint: #fdeae0;
   --balance-pos: #008300;
   --balance-neg: #eb6834;
+  --total-expense: #0288d1;      /* light blue — Total Expenses card only */
+  --total-expense-tint: #e3f4fc;
 
   /* categorical palette (no red) */
   --cat-1: #2a78d6; /* blue */
@@ -57,6 +59,8 @@
     --expense-tint: #3a2417;
     --balance-pos: #0ca30c;
     --balance-neg: #d95926;
+    --total-expense: #4fc3f7;
+    --total-expense-tint: #123247;
 
     --cat-1: #3987e5;
     --cat-2: #199e70;
@@ -166,8 +170,8 @@ h1, h2 { margin: 0; }
 .card-value { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.02em; }
 .card-income { background: linear-gradient(180deg, var(--income-tint), var(--surface-1) 70%); }
 .card-income .card-value { color: var(--income); }
-.card-expense { background: linear-gradient(180deg, var(--expense-tint), var(--surface-1) 70%); }
-.card-expense .card-value { color: var(--expense); }
+.card-expense { background: linear-gradient(180deg, var(--total-expense-tint), var(--surface-1) 70%); }
+.card-expense .card-value { color: var(--total-expense); }
 .card-balance.pos .card-value { color: var(--balance-pos); }
 .card-balance.neg .card-value { color: var(--balance-neg); }
 
