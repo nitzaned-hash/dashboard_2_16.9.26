@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Business Pulse — Income &amp; Expense Dashboard</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-dot" aria-hidden="true"></span>
+    <h1>Business Pulse</h1>
+  </div>
+  <div class="topbar-actions">
+    <label class="period-label" for="dateRange">Period</label>
+    <select id="dateRange" class="select">
+      <option value="7">Last 7 days</option>
+      <option value="30" selected>Last 30 days</option>
+      <option value="90">Last 90 days</option>
+      <option value="month">This month</option>
+      <option value="year">This year</option>
+      <option value="all">All time</option>
+      <option value="custom">Custom range…</option>
+    </select>
+    <div id="customRange" class="custom-range hidden">
+      <input type="date" id="customFrom" class="select">
+      <span>–</span>
+      <input type="date" id="customTo" class="select">
+    </div>
+  </div>
+</header>
+
+<main class="app">
+
+  <section class="cta-row">
+    <button id="btnAddIncome" class="cta cta-income" type="button">
+      <span class="cta-icon">＋</span> Add Income
+    </button>
+    <button id="btnAddExpense" class="cta cta-expense" type="button">
+      <span class="cta-icon">－</span> Add Expense
+    </button>
+  </section>
+
+  <section class="cards-row" aria-label="Summary">
+    <div class="card card-income">
+      <div class="card-label">Total Income</div>
+      <div class="card-value" id="statIncome">₪0</div>
+    </div>
+    <div class="card card-expense">
+      <div class="card-label">Total Expenses</div>
+      <div class="card-value" id="statExpense">₪0</div>
+    </div>
+    <div class="card card-balance" id="cardBalance">
+      <div class="card-label">Net Balance</div>
+      <div class="card-value" id="statBalance">₪0</div>
+    </div>
+  </section>
+
+  <section class="charts-row">
+    <div class="panel panel-trend">
+      <div class="panel-head">
+        <h2>Income vs. Expenses</h2>
+        <div class="legend" id="trendLegend"></div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="trendChart"></canvas>
+        <div class="tooltip hidden" id="trendTooltip"></div>
+      </div>
+    </div>
+
+    <div class="panel panel-donut">
+      <div class="panel-head">
+        <h2>By Category</h2>
+        <div class="segmented" id="donutToggle">
+          <button class="seg-btn active" data-type="expense" type="button">Expenses</button>
+          <button class="seg-btn" data-type="income" type="button">Income</button>
+        </div>
+      </div>
+      <div class="donut-body">
+        <div class="chart-wrap donut-wrap">
+          <canvas id="donutChart"></canvas>
+          <div class="tooltip hidden" id="donutTooltip"></div>
+          <div class="donut-center" id="donutCenter"></div>
+        </div>
+        <ul class="legend-list" id="donutLegend"></ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel panel-filters">
+    <div class="filter-row">
+      <label for="categoryFilter">Category</label>
+      <select id="categoryFilter" class="select">
+        <option value="all">All categories</option>
+      </select>
+      <label for="typeFilter">Type</label>
+      <select id="typeFilter" class="select">
+        <option value="all">Income &amp; Expenses</option>
+        <option value="income">Income only</option>
+        <option value="expense">Expenses only</option>
+      </select>
+      <button id="btnResetFilters" class="link-btn" type="button">Reset filters</button>
+    </div>
+  </section>
+
+  <section class="panel panel-list">
+    <h2>Recent Transactions</h2>
+    <ul class="tx-list" id="txList"></ul>
+    <p class="empty-state hidden" id="emptyState">No transactions yet — tap <strong>Add Income</strong> or <strong>Add Expense</strong> to get started.</p>
+  </section>
+
+</main>
+
+<!-- Transaction modal -->
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-head">
+      <h2 id="modalTitle">Add Income</h2>
+      <button class="icon-btn" id="modalClose" type="button" aria-label="Close">✕</button>
+    </div>
+
+    <div class="type-toggle" id="typeToggle">
+      <button class="seg-btn active" data-type="income" type="button">Income</button>
+      <button class="seg-btn" data-type="expense" type="button">Expense</button>
+    </div>
+
+    <form id="txForm">
+      <input type="hidden" id="txId">
+
+      <label class="field">
+        <span>Amount (₪)</span>
+        <input type="number" id="txAmount" inputmode="decimal" min="0" step="0.01" placeholder="0.00" required>
+      </label>
+
+      <label class="field">
+        <span>Date</span>
+        <input type="date" id="txDate" required>
+      </label>
+
+      <label class="field">
+        <span>Category</span>
+        <select id="txCategory"></select>
+      </label>
+
+      <label class="field">
+        <span>Notes (optional)</span>
+        <input type="text" id="txNotes" maxlength="140" placeholder="e.g. Invoice #204">
+      </label>
+
+      <label class="field">
+        <span>Repeats</span>
+        <select id="txRecurring">
+          <option value="">Does not repeat</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+          <option value="yearly">Yearly</option>
+        </select>
+      </label>
+
+      <div class="modal-actions">
+        <button type="button" id="btnDelete" class="btn btn-ghost hidden">Delete</button>
+        <div class="modal-actions-right">
+          <button type="button" id="btnCancel" class="btn btn-ghost">Cancel</button>
+          <button type="submit" id="btnSave" class="btn btn-primary">Save</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Add category prompt -->
+<div class="modal-overlay hidden" id="catOverlay">
+  <div class="modal modal-small" role="dialog" aria-modal="true" aria-labelledby="catTitle">
+    <div class="modal-head">
+      <h2 id="catTitle">New Category</h2>
+      <button class="icon-btn" id="catClose" type="button" aria-label="Close">✕</button>
+    </div>
+    <form id="catForm">
+      <label class="field">
+        <span>Category name</span>
+        <input type="text" id="catName" maxlength="24" required placeholder="e.g. Equipment">
+      </label>
+      <div class="modal-actions">
+        <div class="modal-actions-right">
+          <button type="button" id="catCancel" class="btn btn-ghost">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Category</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast hidden" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
