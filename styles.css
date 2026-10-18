@@ -20,8 +20,8 @@
   --expense-tint: #fdeae0;
   --balance-pos: #008300;
   --balance-neg: #eb6834;
-  --total-expense: #0288d1;      /* light blue — Total Expenses card only */
-  --total-expense-tint: #e3f4fc;
+  --total-expense: #0b0b0b;      /* black — Total Expenses card only */
+  --total-expense-tint: #f3f3f2;
 
   /* categorical palette (no red) */
   --cat-1: #2a78d6; /* blue */
@@ -59,8 +59,8 @@
     --expense-tint: #3a2417;
     --balance-pos: #0ca30c;
     --balance-neg: #d95926;
-    --total-expense: #4fc3f7;
-    --total-expense-tint: #123247;
+    --total-expense: #ffffff;      /* black reads as white on dark surfaces to stay legible */
+    --total-expense-tint: #201f1e;
 
     --cat-1: #3987e5;
     --cat-2: #199e70;
