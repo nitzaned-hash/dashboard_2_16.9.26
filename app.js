@@ -169,6 +169,8 @@ const els = {
   btnResetFilters: $('#btnResetFilters'),
   txList: $('#txList'),
   emptyState: $('#emptyState'),
+  txTableBody: $('#txTableBody'),
+  tableEmptyState: $('#tableEmptyState'),
   trendCanvas: $('#trendChart'),
   trendTooltip: $('#trendTooltip'),
   trendLegend: $('#trendLegend'),
@@ -260,6 +262,59 @@ function renderTxList(list) {
     li.append(dot, main, amount);
     li.addEventListener('click', () => openEditModal(t));
     els.txList.appendChild(li);
+  }
+}
+
+/* =========================================================
+   Rendering: transaction table
+   ========================================================= */
+function renderTxTable(list) {
+  const sorted = list.slice().sort((a, b) => (b.date + b.createdAt).localeCompare(a.date + a.createdAt));
+  els.txTableBody.innerHTML = '';
+  els.tableEmptyState.classList.toggle('hidden', sorted.length > 0);
+
+  for (const t of sorted) {
+    const cat = CategoryStore.byId(t.categoryId) || { name: 'Other', colorVar: '--cat-other' };
+    const tr = document.createElement('tr');
+    tr.dataset.id = t.id;
+    tr.style.cursor = 'pointer';
+
+    const dateStr = parseISO(t.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    const tdDate = document.createElement('td');
+    tdDate.textContent = dateStr;
+
+    const tdType = document.createElement('td');
+    const pill = document.createElement('span');
+    pill.className = 'type-pill ' + t.type;
+    pill.textContent = t.type === 'income' ? 'Income' : 'Expense';
+    tdType.appendChild(pill);
+
+    const tdCat = document.createElement('td');
+    tdCat.className = 'td-cat';
+    const dot = document.createElement('span');
+    dot.className = 'tx-dot';
+    dot.style.background = cssVar(cat.colorVar);
+    const catName = document.createElement('span');
+    catName.textContent = cat.name;
+    tdCat.append(dot, catName);
+    if (t.recurring) {
+      const badge = document.createElement('span');
+      badge.className = 'tx-badge';
+      badge.textContent = '🔁 ' + t.recurring[0].toUpperCase() + t.recurring.slice(1);
+      tdCat.appendChild(badge);
+    }
+
+    const tdNotes = document.createElement('td');
+    tdNotes.className = 'td-notes';
+    tdNotes.textContent = t.notes || '—';
+
+    const tdAmount = document.createElement('td');
+    tdAmount.className = 'td-amount ' + t.type;
+    tdAmount.textContent = (t.type === 'income' ? '+' : '−') + fmtMoney(t.amount).replace('-', '');
+
+    tr.append(tdDate, tdType, tdCat, tdNotes, tdAmount);
+    tr.addEventListener('click', () => openEditModal(t));
+    els.txTableBody.appendChild(tr);
   }
 }
 
@@ -557,6 +612,7 @@ function renderAll() {
   renderTrendChart(list);
   renderDonut(list);
   renderTxList(list);
+  renderTxTable(list);
 }
 
 /* =========================================================

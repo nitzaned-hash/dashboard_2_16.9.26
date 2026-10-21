@@ -266,6 +266,36 @@ canvas { width: 100%; height: 100%; display: block; }
 
 .empty-state { text-align: center; color: var(--text-muted); padding: 24px 10px; font-size: 0.95rem; }
 
+/* ===== Transaction table ===== */
+.table-wrap { overflow-x: auto; border-radius: var(--radius-md); border: 1px solid var(--border); }
+.tx-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; min-width: 560px; }
+.tx-table thead th {
+  text-align: left;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-secondary);
+  background: var(--surface-2);
+  padding: 12px 14px;
+  position: sticky;
+  top: 0;
+}
+.tx-table thead th.col-amount { text-align: right; }
+.tx-table tbody td { padding: 12px 14px; border-top: 1px solid var(--border); white-space: nowrap; }
+.tx-table tbody tr:nth-child(even) { background: var(--surface-2); }
+.tx-table .td-cat { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.tx-table .td-notes { color: var(--text-secondary); white-space: normal; max-width: 260px; }
+.tx-table .td-amount { text-align: right; font-weight: 800; }
+.tx-table .td-amount.income { color: var(--income); }
+.tx-table .td-amount.expense { color: var(--expense); }
+.tx-table .type-pill {
+  font-size: 0.72rem; font-weight: 700; padding: 3px 9px; border-radius: 999px;
+  display: inline-block;
+}
+.tx-table .type-pill.income { background: var(--income-tint); color: var(--income); }
+.tx-table .type-pill.expense { background: var(--expense-tint); color: var(--expense); }
+
 /* ===== Modal ===== */
 .modal-overlay {
   position: fixed; inset: 0; background: rgba(10, 10, 20, 0.45);

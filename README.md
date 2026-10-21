@@ -34,7 +34,10 @@ they won't come back.
   hover/tap tooltips on both charts
 - **Filtering** by date range (7/30/90 days, month, year, all time, or a
   custom range), category, and transaction type
-- **Recent transactions feed**
+- **Recent transactions feed** (card-style list, most recent 40)
+- **All Transactions table** — a spreadsheet-style view (Date / Type /
+  Category / Notes / Amount) of every transaction matching the current
+  filters; click a row to edit it, same as the list above
 - Currency formatting in ₪ (ILS)
 
 ## Design
