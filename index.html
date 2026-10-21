@@ -29,6 +29,7 @@
       <span>–</span>
       <input type="date" id="customTo" class="select">
     </div>
+    <button id="btnAirtableSettings" class="icon-btn" type="button" title="Airtable sync settings" aria-label="Airtable sync settings">⚙️</button>
   </div>
 </header>
 
@@ -205,6 +206,46 @@
         <div class="modal-actions-right">
           <button type="button" id="catCancel" class="btn btn-ghost">Cancel</button>
           <button type="submit" class="btn btn-primary">Add Category</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Airtable sync settings -->
+<div class="modal-overlay hidden" id="airtableOverlay">
+  <div class="modal modal-small" role="dialog" aria-modal="true" aria-labelledby="airtableTitle">
+    <div class="modal-head">
+      <h2 id="airtableTitle">Airtable Sync</h2>
+      <button class="icon-btn" id="airtableClose" type="button" aria-label="Close">✕</button>
+    </div>
+
+    <p class="airtable-status" id="airtableStatus">Not connected.</p>
+    <p class="airtable-note">
+      Your token is saved only in this browser's local storage — it is never
+      written to the dashboard's code or repo, and isn't sent anywhere except
+      directly to Airtable's API.
+    </p>
+
+    <form id="airtableForm">
+      <label class="field">
+        <span>Personal access token</span>
+        <input type="password" id="airtableToken" autocomplete="off" placeholder="pat...">
+      </label>
+      <label class="field">
+        <span>Base ID</span>
+        <input type="text" id="airtableBaseId" autocomplete="off" placeholder="appXXXXXXXXXXXXXX">
+      </label>
+      <label class="field">
+        <span>Table ID or name</span>
+        <input type="text" id="airtableTableId" autocomplete="off" placeholder="Transactions">
+      </label>
+
+      <div class="modal-actions">
+        <button type="button" id="btnAirtableDisconnect" class="btn btn-ghost hidden">Disconnect</button>
+        <div class="modal-actions-right">
+          <button type="button" id="btnAirtableSync" class="btn btn-ghost hidden">Sync now</button>
+          <button type="submit" class="btn btn-primary">Save &amp; Connect</button>
         </div>
       </div>
     </form>

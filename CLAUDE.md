@@ -36,3 +36,14 @@ other than `origin`.
   paths) — never force-add it.
 - No build step: `index.html`, `styles.css`, `app.js` are hand-written,
   plain, dependency-free. Keep it that way unless asked otherwise.
+- Airtable mock data lives in the "Mock Data" base (`appYFa7UObm82c5t9`),
+  table "Transactions" (`tblxeZl6jQP11A6xM`), via this session's Airtable
+  MCP connector — not a token pasted by the user. Fields: Date, Type
+  (Income/Expense), Category, Notes, Amount, Recurring (None/Weekly/
+  Monthly/Yearly). The dashboard's optional client-side Airtable sync
+  (see README.md) defaults its Base ID/Table ID fields to these IDs.
+  **Never commit a real Airtable token to this repo or hardcode one into
+  app.js/index.html** — it's a public repo; the whole design keeps the
+  token out of the published code and in the user's own browser storage
+  only. If asked to "connect" another external service to this live site,
+  raise the same client-side-secret-exposure concern before implementing.

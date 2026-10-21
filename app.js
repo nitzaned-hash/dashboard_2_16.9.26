@@ -75,6 +75,146 @@ const CategoryStore = (() => {
 })();
 
 /* =========================================================
+   Airtable sync — optional, off by default.
+   The token lives only in this browser's localStorage; it is never
+   written into app.js/index.html/the repo. Nothing here runs unless
+   the user has saved a token via the Airtable Sync settings panel.
+   ========================================================= */
+const AirtableSync = (() => {
+  const CFG_KEY = 'bp_airtable_config';
+
+  function getConfig() {
+    try { return JSON.parse(localStorage.getItem(CFG_KEY)) || null; }
+    catch { return null; }
+  }
+  function setConfig(cfg) { localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }
+  function clearConfig() { localStorage.removeItem(CFG_KEY); }
+  function isConnected() {
+    const c = getConfig();
+    return !!(c && c.token && c.baseId && c.tableId);
+  }
+
+  function apiUrl(cfg, path) {
+    return `https://api.airtable.com/v0/${cfg.baseId}/${encodeURIComponent(cfg.tableId)}${path || ''}`;
+  }
+  async function request(path, options) {
+    const cfg = getConfig();
+    if (!cfg || !cfg.token) throw new Error('Airtable is not connected');
+    const res = await fetch(apiUrl(cfg, path), {
+      ...options,
+      headers: {
+        'Authorization': `Bearer ${cfg.token}`,
+        'Content-Type': 'application/json',
+        ...(options && options.headers),
+      },
+    });
+    if (!res.ok) {
+      const body = await res.text().catch(() => '');
+      throw new Error(`Airtable ${res.status}: ${body.slice(0, 200)}`);
+    }
+    return res.json();
+  }
+
+  // ---- field <-> dashboard value mapping ----
+  function typeToAirtable(t) { return t === 'income' ? 'Income' : 'Expense'; }
+  function typeFromAirtable(s) { return s === 'Income' ? 'income' : 'expense'; }
+  function recurringToAirtable(r) {
+    if (!r) return 'None';
+    return r[0].toUpperCase() + r.slice(1);
+  }
+  function recurringFromAirtable(s) {
+    if (!s || s === 'None') return '';
+    return s.toLowerCase();
+  }
+  function txToFields(t) {
+    const cat = CategoryStore.byId(t.categoryId);
+    return {
+      Date: t.date,
+      Type: typeToAirtable(t.type),
+      Category: cat ? cat.name : 'Other',
+      Notes: t.notes || '',
+      Amount: t.amount,
+      Recurring: recurringToAirtable(t.recurring),
+    };
+  }
+  function fieldsToTx(record) {
+    const f = record.fields || {};
+    const cats = CategoryStore.getAll();
+    const cat = cats.find(c => c.name === f.Category) || cats.find(c => c.id === 'other');
+    return {
+      airtableId: record.id,
+      type: typeFromAirtable(f.Type),
+      amount: Number(f.Amount) || 0,
+      date: f.Date || todayISO(),
+      categoryId: cat.id,
+      notes: f.Notes || '',
+      recurring: recurringFromAirtable(f.Recurring),
+    };
+  }
+
+  // ---- push: mirror a local change to Airtable (best-effort) ----
+  async function pushCreate(tx) {
+    const data = await request('', {
+      method: 'POST',
+      body: JSON.stringify({ typecast: true, records: [{ fields: txToFields(tx) }] }),
+    });
+    return data.records[0].id;
+  }
+  async function pushUpdate(airtableId, tx) {
+    await request('', {
+      method: 'PATCH',
+      body: JSON.stringify({ typecast: true, records: [{ id: airtableId, fields: txToFields(tx) }] }),
+    });
+  }
+  async function pushDelete(airtableId) {
+    await request(`?records[]=${encodeURIComponent(airtableId)}`, { method: 'DELETE' });
+  }
+
+  // ---- pull: fetch every record from the configured table ----
+  async function pullAll() {
+    let all = [];
+    let offset;
+    do {
+      const qs = offset ? `?offset=${encodeURIComponent(offset)}` : '';
+      const data = await request(qs, { method: 'GET' });
+      all = all.concat(data.records);
+      offset = data.offset;
+    } while (offset);
+    return all.map(fieldsToTx);
+  }
+
+  // ---- sync: push any un-synced local rows, then pull and upsert by airtableId ----
+  async function syncNow() {
+    const local = DataStore.getAll();
+    for (const t of local) {
+      if (!t.airtableId) {
+        const id = await pushCreate(t);
+        DataStore.update(t.id, { airtableId: id });
+      }
+    }
+    const remote = await pullAll();
+    const current = DataStore.getAll();
+    let added = 0, updated = 0;
+    for (const r of remote) {
+      const match = current.find(t => t.airtableId === r.airtableId);
+      if (match) {
+        DataStore.update(match.id, r);
+        updated++;
+      } else {
+        DataStore.add(r);
+        added++;
+      }
+    }
+    return { added, updated };
+  }
+
+  return {
+    getConfig, setConfig, clearConfig, isConnected,
+    pushCreate, pushUpdate, pushDelete, syncNow,
+  };
+})();
+
+/* =========================================================
    Helpers
    ========================================================= */
 function cssVar(name) {
@@ -200,6 +340,16 @@ const els = {
   catForm: $('#catForm'),
   catName: $('#catName'),
   toast: $('#toast'),
+  btnAirtableSettings: $('#btnAirtableSettings'),
+  airtableOverlay: $('#airtableOverlay'),
+  airtableClose: $('#airtableClose'),
+  airtableStatus: $('#airtableStatus'),
+  airtableForm: $('#airtableForm'),
+  airtableToken: $('#airtableToken'),
+  airtableBaseId: $('#airtableBaseId'),
+  airtableTableId: $('#airtableTableId'),
+  btnAirtableSync: $('#btnAirtableSync'),
+  btnAirtableDisconnect: $('#btnAirtableDisconnect'),
 };
 
 let activeTxType = 'income';
@@ -725,6 +875,77 @@ els.catForm.addEventListener('submit', e => {
   populateCategorySelect();
 });
 
+/* =========================================================
+   Airtable sync settings modal
+   ========================================================= */
+function refreshAirtableStatus() {
+  const connected = AirtableSync.isConnected();
+  els.airtableStatus.textContent = connected
+    ? 'Connected — changes you make here will sync to Airtable.'
+    : 'Not connected.';
+  els.airtableStatus.classList.toggle('connected', connected);
+  els.btnAirtableSync.classList.toggle('hidden', !connected);
+  els.btnAirtableDisconnect.classList.toggle('hidden', !connected);
+}
+
+// Pre-fills the base/table created for this project; the token is never
+// prefilled or stored anywhere but the user's own browser.
+const AIRTABLE_DEFAULT_BASE = 'appYFa7UObm82c5t9';
+const AIRTABLE_DEFAULT_TABLE = 'tblxeZl6jQP11A6xM';
+
+function openAirtableModal() {
+  const cfg = AirtableSync.getConfig();
+  els.airtableToken.value = '';
+  els.airtableBaseId.value = (cfg && cfg.baseId) || AIRTABLE_DEFAULT_BASE;
+  els.airtableTableId.value = (cfg && cfg.tableId) || AIRTABLE_DEFAULT_TABLE;
+  refreshAirtableStatus();
+  els.airtableOverlay.classList.remove('hidden');
+}
+function closeAirtableModal() { els.airtableOverlay.classList.add('hidden'); }
+
+els.btnAirtableSettings.addEventListener('click', openAirtableModal);
+els.airtableClose.addEventListener('click', closeAirtableModal);
+els.airtableOverlay.addEventListener('click', e => { if (e.target === els.airtableOverlay) closeAirtableModal(); });
+
+els.airtableForm.addEventListener('submit', e => {
+  e.preventDefault();
+  const baseId = els.airtableBaseId.value.trim();
+  const tableId = els.airtableTableId.value.trim();
+  const tokenInput = els.airtableToken.value.trim();
+  const existing = AirtableSync.getConfig();
+  const token = tokenInput || (existing && existing.token) || '';
+  if (!token || !baseId || !tableId) {
+    showToast('Token, Base ID, and Table are all required');
+    return;
+  }
+  AirtableSync.setConfig({ token, baseId, tableId });
+  refreshAirtableStatus();
+  showToast('Airtable connected');
+});
+
+els.btnAirtableDisconnect.addEventListener('click', () => {
+  AirtableSync.clearConfig();
+  els.airtableToken.value = '';
+  refreshAirtableStatus();
+  showToast('Airtable disconnected');
+});
+
+els.btnAirtableSync.addEventListener('click', async () => {
+  els.btnAirtableSync.disabled = true;
+  els.btnAirtableSync.textContent = 'Syncing…';
+  try {
+    const { added, updated } = await AirtableSync.syncNow();
+    showToast(`Synced — ${added} added, ${updated} updated`);
+    populateCategorySelect();
+    renderAll();
+  } catch (err) {
+    showToast('Sync failed: ' + err.message);
+  } finally {
+    els.btnAirtableSync.disabled = false;
+    els.btnAirtableSync.textContent = 'Sync now';
+  }
+});
+
 els.txForm.addEventListener('submit', e => {
   e.preventDefault();
   const amount = parseFloat(els.txAmount.value);
@@ -739,11 +960,20 @@ els.txForm.addEventListener('submit', e => {
     recurring: els.txRecurring.value || '',
   };
   if (els.txId.value) {
-    DataStore.update(els.txId.value, payload);
+    const existing = DataStore.getAll().find(t => t.id === els.txId.value);
+    const updated = DataStore.update(els.txId.value, payload);
     showToast('Transaction updated');
+    if (existing && existing.airtableId) {
+      AirtableSync.pushUpdate(existing.airtableId, updated).catch(() => showToast('Saved locally — Airtable sync failed'));
+    }
   } else {
-    DataStore.add(payload);
+    const created = DataStore.add(payload);
     showToast(activeTxType === 'income' ? 'Income added' : 'Expense added');
+    if (AirtableSync.isConnected()) {
+      AirtableSync.pushCreate(created)
+        .then(airtableId => DataStore.update(created.id, { airtableId }))
+        .catch(() => showToast('Saved locally — Airtable sync failed'));
+    }
   }
   closeModal();
   populateCategorySelect();
@@ -753,10 +983,14 @@ els.txForm.addEventListener('submit', e => {
 els.btnDelete.addEventListener('click', () => {
   if (!els.txId.value) return;
   if (confirm('Delete this transaction? This cannot be undone.')) {
+    const existing = DataStore.getAll().find(t => t.id === els.txId.value);
     DataStore.remove(els.txId.value);
     closeModal();
     renderAll();
     showToast('Transaction deleted');
+    if (existing && existing.airtableId) {
+      AirtableSync.pushDelete(existing.airtableId).catch(() => showToast('Deleted locally — Airtable sync failed'));
+    }
   }
 });
 

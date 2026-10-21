@@ -314,6 +314,15 @@ canvas { width: 100%; height: 100%; display: block; }
   overflow-y: auto;
 }
 .modal-small { border-radius: 22px; margin: auto; }
+.airtable-status {
+  font-size: 0.88rem; font-weight: 700; color: var(--text-secondary);
+  margin: 0 0 6px;
+}
+.airtable-status.connected { color: var(--income); }
+.airtable-note {
+  font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;
+  margin: 0 0 16px;
+}
 .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
 .icon-btn {
   border: none; background: var(--surface-2); color: var(--text-secondary);

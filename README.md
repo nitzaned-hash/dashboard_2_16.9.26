@@ -38,7 +38,36 @@ they won't come back.
 - **All Transactions table** — a spreadsheet-style view (Date / Type /
   Category / Notes / Amount) of every transaction matching the current
   filters; click a row to edit it, same as the list above
+- **Optional Airtable sync** (⚙️ in the top bar) — see below
 - Currency formatting in ₪ (ILS)
+
+## Airtable sync (optional)
+
+The gear icon in the top bar opens **Airtable Sync** settings. This is
+entirely opt-in and off by default; nothing calls Airtable unless you connect
+it yourself.
+
+- Paste your own Airtable **personal access token**, plus a base ID and
+  table ID (the table ID field defaults to the `Transactions` table the
+  project was built against). Connecting doesn't verify credentials until
+  you first sync or edit a transaction.
+- Your token is saved **only in your browser's `localStorage`**. It is never
+  written into `app.js`, `index.html`, or committed to this repo — the repo
+  itself contains no real token, only the client-side code that reads one if
+  you supply it.
+- Once connected, adding, editing, or deleting a transaction in the
+  dashboard also pushes that change to Airtable (best-effort — if the
+  request fails you still keep your local change, with a toast telling you
+  the sync failed).
+- **Sync now** pulls every record from the configured Airtable table: rows
+  it recognizes (by a stored Airtable record ID) are updated locally, new
+  ones are added. It does not delete local rows that were removed on the
+  Airtable side — that's a known limitation, not a bug.
+- **Why isn't this wired up by default?** This dashboard is a public static
+  site (GitHub Pages) with no backend. Any token baked into the published
+  `app.js` would be visible to every visitor via view-source or the network
+  tab. Keeping the token client-side-only, pasted by you into your own
+  browser, avoids ever publishing a real credential.
 
 ## Design
 
