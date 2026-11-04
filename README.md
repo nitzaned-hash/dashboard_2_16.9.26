@@ -39,6 +39,8 @@ they won't come back.
   Category / Notes / Amount) of every transaction matching the current
   filters; click a row to edit it, same as the list above
 - **Optional Airtable sync** (⚙️ in the top bar) — see below
+- **Competitors tab** — a second screen showing competitor ratings and
+  customer reviews scraped with Apify — see below
 - Currency formatting in ₪ (ILS)
 
 ## Airtable sync (optional)
@@ -69,6 +71,32 @@ it yourself.
   tab. Keeping the token client-side-only, pasted by you into your own
   browser, avoids ever publishing a real credential.
 
+## Competitor Watch (Apify)
+
+The **Competitors** tab is a market-research screen: it shows how competing
+businesses are rated on Google Maps and what their customers praise or
+complain about. The data is collected by an [Apify](https://www.apify.com)
+**Google Maps Scraper** actor and shown as summary cards, a rating-by-competitor
+bar chart, a complaints/praise review feed, and a table of all competitors.
+
+Two ways to feed it:
+
+- **Snapshot (works for everyone, no token):** export the Apify dataset as
+  JSON and save it as `data/competitors.json`. The live site then shows it
+  to every visitor (badge: *Apify · snapshot*). When exporting, pick only the
+  fields you need (`title`, `totalScore`, `reviewsCount`, `categoryName`,
+  `address`, `website`, `url`, and review `text` / `stars` /
+  `publishedAtDate`) so reviewer names and other personal data don't end up
+  in this public repo.
+- **Live (optional, your browser only):** in **Apify settings** paste your own
+  Apify API token and the dataset ID (Apify console → the run → Storage).
+  Like the Airtable token, it is saved **only in `localStorage`**, never in
+  the code or repo, and is sent only to `api.apify.com`. Use a token with
+  limited permissions where possible (badge: *Apify · live*).
+
+All scraped text is rendered with `textContent` (never `innerHTML`), and
+website/map links are only rendered if they are `http(s)` URLs.
+
 ## Design
 
 - Bright, vibrant color palette; **no red anywhere** in the UI (including for
@@ -83,10 +111,12 @@ it yourself.
 ## Project structure
 
 ```
-index.html   — page structure and markup
-styles.css   — design tokens (light/dark), layout, components
-app.js       — data layer (localStorage), chart rendering (canvas), UI logic
-spec.md      — product spec
+index.html       — page structure and markup (Overview + Competitors views)
+styles.css       — design tokens (light/dark), layout, components
+app.js           — data layer (localStorage), chart rendering (canvas), UI logic
+competitors.js   — Competitors tab: Apify data (live or snapshot) and its rendering
+data/            — optional competitors.json snapshot exported from Apify
+spec.md          — product spec
 ```
 
 ## Data & architecture notes

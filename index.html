@@ -33,7 +33,12 @@
   </div>
 </header>
 
-<main class="app">
+<nav class="tabs" aria-label="Dashboard views">
+  <button class="tab active" data-view="overview" type="button">Overview</button>
+  <button class="tab" data-view="competitors" type="button">Competitors</button>
+</nav>
+
+<main class="app" id="viewOverview">
 
   <section class="cta-row">
     <button id="btnAddIncome" class="cta cta-income" type="button">
@@ -130,6 +135,69 @@
     </div>
     <p class="empty-state hidden" id="tableEmptyState">No transactions match the current filters.</p>
   </section>
+
+</main>
+
+<!-- Competitor Watch (data from Apify) -->
+<main class="app hidden" id="viewCompetitors">
+
+  <section class="panel comp-intro">
+    <div>
+      <h2>Competitor Watch</h2>
+      <p class="comp-sub">Ratings and customer reviews of competing businesses, collected from Google Maps with Apify.</p>
+    </div>
+    <div class="comp-intro-actions">
+      <span class="source-badge" id="compSource">No data</span>
+      <button id="btnCompRefresh" class="btn btn-ghost" type="button">Refresh</button>
+      <button id="btnApifySettings" class="btn btn-primary" type="button">Apify settings</button>
+    </div>
+  </section>
+
+  <p class="panel empty-state hidden" id="compEmpty"></p>
+
+  <div class="comp-content hidden" id="compContent">
+    <section class="comp-cards" aria-label="Competitor summary">
+      <div class="card"><div class="card-label">Competitors tracked</div><div class="card-value" id="compCount">0</div></div>
+      <div class="card"><div class="card-label">Average rating</div><div class="card-value" id="compAvg">–</div></div>
+      <div class="card"><div class="card-label">Total reviews</div><div class="card-value" id="compReviews">0</div></div>
+      <div class="card"><div class="card-label">Top rated</div><div class="card-value card-value-text" id="compTop">–</div></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Rating by competitor</h2></div>
+      <div id="compRatings"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>What customers say</h2>
+        <div class="segmented" id="compReviewToggle">
+          <button class="seg-btn active" data-mode="complaints" type="button">Complaints (1–3★)</button>
+          <button class="seg-btn" data-mode="praise" type="button">Praise (4–5★)</button>
+        </div>
+      </div>
+      <ul class="rev-list" id="compReviewList"></ul>
+    </section>
+
+    <section class="panel panel-table">
+      <h2>All competitors</h2>
+      <div class="table-wrap">
+        <table class="tx-table">
+          <thead>
+            <tr>
+              <th>Business</th>
+              <th>Category</th>
+              <th class="col-amount">Rating</th>
+              <th class="col-amount">Reviews</th>
+              <th>Address</th>
+              <th>Links</th>
+            </tr>
+          </thead>
+          <tbody id="compTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+  </div>
 
 </main>
 
@@ -252,8 +320,45 @@
   </div>
 </div>
 
+<!-- Apify settings -->
+<div class="modal-overlay hidden" id="apifyOverlay">
+  <div class="modal modal-small" role="dialog" aria-modal="true" aria-labelledby="apifyTitle">
+    <div class="modal-head">
+      <h2 id="apifyTitle">Apify Data</h2>
+      <button class="icon-btn" id="apifyClose" type="button" aria-label="Close">✕</button>
+    </div>
+
+    <p class="airtable-status" id="apifyStatus">Not connected.</p>
+    <p class="airtable-note">
+      Optional live mode. Your Apify token is saved only in this browser's local
+      storage — never in the dashboard's code or repo — and is sent only to
+      Apify's API. Without it, the dashboard shows the saved snapshot in
+      <code>data/competitors.json</code>.
+    </p>
+
+    <form id="apifyForm">
+      <label class="field">
+        <span>Apify API token</span>
+        <input type="password" id="apifyToken" autocomplete="off" placeholder="apify_api_...">
+      </label>
+      <label class="field">
+        <span>Dataset ID</span>
+        <input type="text" id="apifyDatasetId" autocomplete="off" placeholder="from the run's Storage tab">
+      </label>
+
+      <div class="modal-actions">
+        <button type="button" id="btnApifyDisconnect" class="btn btn-ghost hidden">Disconnect</button>
+        <div class="modal-actions-right">
+          <button type="submit" class="btn btn-primary">Save &amp; Connect</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div class="toast hidden" id="toast"></div>
 
 <script src="app.js"></script>
+<script src="competitors.js"></script>
 </body>
 </html>

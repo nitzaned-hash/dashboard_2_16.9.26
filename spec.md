@@ -42,6 +42,17 @@ Business owners who need a quick, clear view of money coming in and going out �
 ### Actions
 - Big "Add Income" and "Add Expense" buttons, prominently placed and easy to tap on mobile and desktop
 
+### Competitor Watch (second screen, data from Apify)
+- A **Competitors** tab next to **Overview** for simple market research: how
+  competing businesses are rated on Google Maps and what their customers say
+- Data comes from an Apify Google Maps scraper dataset, either as a committed
+  snapshot (`data/competitors.json`) or live via the user's own Apify token
+  kept only in the browser (same no-secrets-in-the-repo rule as Airtable)
+- Shows summary cards (competitors tracked, average rating, total reviews, top
+  rated), rating-by-competitor bars, a complaints (1–3★) / praise (4–5★)
+  review feed, and a table of all competitors
+- Read-only; same visual rules as the rest of the app (no red, 44px+ targets)
+
 ## Non-Goals (for now)
 - Multi-currency support (ILS only for now)
 - Invoicing or payment processing
