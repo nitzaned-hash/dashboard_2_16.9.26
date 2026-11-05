@@ -55,9 +55,11 @@ const ApifyData = (() => {
     return {
       name: String(name),
       category: String(it.categoryName || (Array.isArray(it.categories) && it.categories[0]) || ''),
+      categories: (Array.isArray(it.categories) ? it.categories : [it.categoryName]).filter(Boolean).map(String),
       rating: num(it.totalScore ?? it.rating),
       reviewsCount: num(it.reviewsCount ?? it.userRatingsTotal) || 0,
-      address: String(it.address || [it.street, it.city].filter(Boolean).join(', ') || ''),
+      city: String(it.city || ''),
+      address: String(it.address || ''),
       website: String(it.website || ''),
       url: String(it.url || ''),
       reviews: reviews
@@ -92,6 +94,17 @@ const ApifyData = (() => {
     reviews: $c('compReviews'),
     top: $c('compTop'),
     ratings: $c('compRatings'),
+    cities: $c('compCities'),
+    topCat: $c('compTopCat'),
+    withSite: $c('compWithSite'),
+    cardAvg: $c('cardAvg'),
+    cardReviews: $c('cardReviews'),
+    cardTop: $c('cardTop'),
+    ratingsPanel: $c('compRatingsPanel'),
+    reviewsPanel: $c('compReviewsPanel'),
+    catBars: $c('compCatBars'),
+    cityBars: $c('compCityBars'),
+    colRating: document.querySelectorAll('.col-rating'),
     reviewList: $c('compReviewList'),
     reviewToggle: $c('compReviewToggle'),
     tableBody: $c('compTableBody'),
@@ -152,6 +165,31 @@ const ApifyData = (() => {
     ui.empty.classList.remove('hidden');
   }
 
+  function tally(values) {
+    const m = new Map();
+    values.filter(Boolean).forEach(v => m.set(v, (m.get(v) || 0) + 1));
+    return [...m.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  }
+
+  function renderBars(container, entries) {
+    const max = entries.length ? entries[0][1] : 1;
+    container.replaceChildren(...entries.map(([label, n], i) => h('div', { class: 'rating-row' },
+      h('div', { class: 'rating-name', title: label, text: label }),
+      h('div', { class: 'rating-track' },
+        h('div', { class: 'rating-fill' + (i === 0 ? ' top' : ''), style: `width:${(n / max) * 100}%` })),
+      h('div', { class: 'rating-val', text: n === 1 ? '1 business' : `${n} businesses` }))));
+  }
+
+  function renderMarketMap() {
+    const cats = tally(places.flatMap(p => p.categories));
+    const cities = tally(places.map(p => p.city));
+    ui.cities.textContent = cities.length.toLocaleString('en-US');
+    ui.topCat.textContent = cats.length ? cats[0][0] : '–';
+    ui.withSite.textContent = `${places.filter(p => safeUrl(p.website)).length} of ${places.length}`;
+    renderBars(ui.catBars, cats.slice(0, 8));
+    renderBars(ui.cityBars, cities.slice(0, 8));
+  }
+
   function renderSummary() {
     const rated = places.filter(p => p.rating != null);
     const avg = rated.length ? rated.reduce((s, p) => s + p.rating, 0) / rated.length : null;
@@ -207,9 +245,9 @@ const ApifyData = (() => {
       return h('tr', null,
         h('td', { class: 'td-cat', text: p.name }),
         h('td', { text: p.category || '–' }),
-        h('td', { class: 'td-amount', text: p.rating != null ? p.rating.toFixed(1) + ' ★' : '–' }),
-        h('td', { class: 'td-amount', text: p.reviewsCount.toLocaleString('en-US') }),
-        h('td', { class: 'td-wrap', text: p.address || '–' }),
+        h('td', { text: p.city || '–' }),
+        h('td', { class: 'td-amount col-rating', text: p.rating != null ? p.rating.toFixed(1) + ' ★' : '–' }),
+        h('td', { class: 'td-amount col-rating', text: p.reviewsCount.toLocaleString('en-US') }),
         links);
     }));
   }
@@ -217,7 +255,15 @@ const ApifyData = (() => {
   function render() {
     ui.empty.classList.add('hidden');
     ui.content.classList.remove('hidden');
+    // Ratings/reviews only exist if the scraper was run with them; otherwise
+    // hide those parts and show the market map built from what is there.
+    const hasRatings = places.some(p => p.rating != null);
+    const hasReviews = places.some(p => p.reviews.length);
+    [ui.cardAvg, ui.cardReviews, ui.cardTop, ui.ratingsPanel].forEach(el => el.classList.toggle('hidden', !hasRatings));
+    ui.reviewsPanel.classList.toggle('hidden', !hasReviews);
+    document.querySelectorAll('.col-rating').forEach(el => el.classList.toggle('hidden', !hasRatings));
     renderSummary();
+    renderMarketMap();
     renderRatings();
     renderReviews();
     renderTable();

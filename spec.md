@@ -48,9 +48,12 @@ Business owners who need a quick, clear view of money coming in and going out �
 - Data comes from an Apify Google Maps scraper dataset, either as a committed
   snapshot (`data/competitors.json`) or live via the user's own Apify token
   kept only in the browser (same no-secrets-in-the-repo rule as Airtable)
-- Shows summary cards (competitors tracked, average rating, total reviews, top
-  rated), rating-by-competitor bars, a complaints (1–3★) / praise (4–5★)
-  review feed, and a table of all competitors
+- Always shows summary cards (competitors tracked, cities covered, with a
+  website, most common category), a market map (businesses per category and per
+  city) and a table of all competitors
+- When the dataset also has ratings/reviews, additionally shows average
+  rating, total reviews, top rated, rating-by-competitor bars and a
+  complaints (1–3★) / praise (4–5★) review feed; these are hidden otherwise
 - Read-only; same visual rules as the rest of the app (no red, 44px+ targets)
 
 ## Non-Goals (for now)

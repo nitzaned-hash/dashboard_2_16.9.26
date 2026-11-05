@@ -94,6 +94,20 @@ Two ways to feed it:
   the code or repo, and is sent only to `api.apify.com`. Use a token with
   limited permissions where possible (badge: *Apify · live*).
 
+What the screen shows depends on what the scraper collected:
+
+- **Always:** competitors tracked, cities covered, how many have a website,
+  most common category, a "market map" (businesses per category and per city)
+  and a table of all competitors with Website / Map links.
+- **Only if the data has them:** average rating, total reviews, top rated, a
+  rating-by-competitor chart and the complaints/praise review feed. These
+  parts are hidden automatically when the dataset has no `totalScore` /
+  `reviews` (e.g. a cheap run with reviews switched off).
+
+The committed `data/competitors.json` is an Apify Google Maps export of 16
+ceramics businesses in Israel. It contains only business name, categories,
+city, website and map link (street addresses and internal IDs were removed).
+
 All scraped text is rendered with `textContent` (never `innerHTML`), and
 website/map links are only rendered if they are `http(s)` URLs.
 

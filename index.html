@@ -144,7 +144,7 @@
   <section class="panel comp-intro">
     <div>
       <h2>Competitor Watch</h2>
-      <p class="comp-sub">Ratings and customer reviews of competing businesses, collected from Google Maps with Apify.</p>
+      <p class="comp-sub">Who your competitors are, where they are and what they offer, collected from Google Maps with Apify. Ratings and reviews appear too when the scraper collected them.</p>
     </div>
     <div class="comp-intro-actions">
       <span class="source-badge" id="compSource">No data</span>
@@ -158,17 +158,30 @@
   <div class="comp-content hidden" id="compContent">
     <section class="comp-cards" aria-label="Competitor summary">
       <div class="card"><div class="card-label">Competitors tracked</div><div class="card-value" id="compCount">0</div></div>
-      <div class="card"><div class="card-label">Average rating</div><div class="card-value" id="compAvg">–</div></div>
-      <div class="card"><div class="card-label">Total reviews</div><div class="card-value" id="compReviews">0</div></div>
-      <div class="card"><div class="card-label">Top rated</div><div class="card-value card-value-text" id="compTop">–</div></div>
+      <div class="card"><div class="card-label">Cities covered</div><div class="card-value" id="compCities">0</div></div>
+      <div class="card"><div class="card-label">With a website</div><div class="card-value" id="compWithSite">–</div></div>
+      <div class="card"><div class="card-label">Most common category</div><div class="card-value card-value-text" id="compTopCat">–</div></div>
+      <div class="card" id="cardAvg"><div class="card-label">Average rating</div><div class="card-value" id="compAvg">–</div></div>
+      <div class="card" id="cardReviews"><div class="card-label">Total reviews</div><div class="card-value" id="compReviews">0</div></div>
+      <div class="card" id="cardTop"><div class="card-label">Top rated</div><div class="card-value card-value-text" id="compTop">–</div></div>
     </section>
 
     <section class="panel">
+      <div class="panel-head"><h2>Market map: categories</h2></div>
+      <div id="compCatBars"></div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Market map: cities</h2></div>
+      <div id="compCityBars"></div>
+    </section>
+
+    <section class="panel hidden" id="compRatingsPanel">
       <div class="panel-head"><h2>Rating by competitor</h2></div>
       <div id="compRatings"></div>
     </section>
 
-    <section class="panel">
+    <section class="panel hidden" id="compReviewsPanel">
       <div class="panel-head">
         <h2>What customers say</h2>
         <div class="segmented" id="compReviewToggle">
@@ -187,9 +200,9 @@
             <tr>
               <th>Business</th>
               <th>Category</th>
-              <th class="col-amount">Rating</th>
-              <th class="col-amount">Reviews</th>
-              <th>Address</th>
+              <th>City</th>
+              <th class="col-amount col-rating">Rating</th>
+              <th class="col-amount col-rating">Reviews</th>
               <th>Links</th>
             </tr>
           </thead>
