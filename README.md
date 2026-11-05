@@ -41,6 +41,9 @@ they won't come back.
 - **Optional Airtable sync** (⚙️ in the top bar) — see below
 - **Competitors tab** — a second screen showing competitor ratings and
   customer reviews scraped with Apify — see below
+- **Live exchange rates** — an external public API (Frankfurter) feeds an
+  Overview panel: today's ILS rates, a 30-day USD/ILS trend, and the net
+  balance converted to USD/EUR/GBP — see below
 - Currency formatting in ₪ (ILS)
 
 ## Airtable sync (optional)
@@ -70,6 +73,23 @@ it yourself.
   `app.js` would be visible to every visitor via view-source or the network
   tab. Keeping the token client-side-only, pasted by you into your own
   browser, avoids ever publishing a real credential.
+
+## Exchange rates (external public API)
+
+The Overview shows a live **Exchange rates** panel powered by the free
+[Frankfurter API](https://frankfurter.dev) (European Central Bank reference
+rates; listed in [public-apis](https://github.com/public-apis/public-apis)).
+
+- Calls: `GET https://api.frankfurter.dev/v2/rates?base=ILS&quotes=USD,EUR,GBP`
+  for today's rates and `...?from=<30 days ago>&to=<today>&base=USD&quotes=ILS`
+  for the trend (see [rates.js](rates.js)).
+- **No API key or token** is needed and the API allows cross-origin requests,
+  so it is called straight from the browser — nothing secret exists to leak
+  from this public repo.
+- The net balance for the currently selected period (shown in the cards) is
+  converted to USD / EUR / GBP and updates when the period or filters change.
+- If the API is unreachable the panel shows "Exchange rates are unavailable"
+  and the rest of the dashboard keeps working.
 
 ## Competitor Watch (Apify)
 
@@ -129,6 +149,7 @@ index.html       — page structure and markup (Overview + Competitors views)
 styles.css       — design tokens (light/dark), layout, components
 app.js           — data layer (localStorage), chart rendering (canvas), UI logic
 competitors.js   — Competitors tab: Apify data (live or snapshot) and its rendering
+rates.js         — Exchange-rates panel: Frankfurter public API (no key)
 data/            — optional competitors.json snapshot exported from Apify
 spec.md          — product spec
 ```

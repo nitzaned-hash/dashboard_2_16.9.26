@@ -367,6 +367,10 @@ function renderCards(list) {
   els.statBalance.textContent = fmtMoney(balance);
   els.cardBalance.classList.toggle('pos', balance >= 0);
   els.cardBalance.classList.toggle('neg', balance < 0);
+  // Let other modules (rates.js) react to the current net balance.
+  window.BP = window.BP || {};
+  window.BP.balance = balance;
+  document.dispatchEvent(new CustomEvent('bp:balance'));
 }
 
 /* =========================================================

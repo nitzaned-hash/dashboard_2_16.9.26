@@ -64,6 +64,26 @@
     </div>
   </section>
 
+  <!-- Live exchange rates (external public API: Frankfurter) -->
+  <section class="panel fx-panel" aria-label="Exchange rates">
+    <div class="panel-head">
+      <h2>Exchange rates <small class="fx-sub">1 unit in shekels</small></h2>
+      <div class="comp-intro-actions">
+        <span class="source-badge" id="fxStatus">Loading…</span>
+        <button id="btnFxRefresh" class="btn btn-ghost" type="button">Refresh</button>
+      </div>
+    </div>
+    <div class="fx-body">
+      <div class="fx-list" id="fxList"></div>
+      <div class="fx-chart">
+        <svg id="fxTrend" viewBox="0 0 300 90" preserveAspectRatio="none" role="img" aria-label="USD to ILS, last 30 days"></svg>
+        <p class="fx-note" id="fxTrendNote"></p>
+      </div>
+    </div>
+    <p class="fx-converted" id="fxConverted"></p>
+    <p class="fx-note">Source: Frankfurter API (European Central Bank reference rates), no key required.</p>
+  </section>
+
   <section class="charts-row">
     <div class="panel panel-trend">
       <div class="panel-head">
@@ -373,5 +393,6 @@
 
 <script src="app.js"></script>
 <script src="competitors.js"></script>
+<script src="rates.js"></script>
 </body>
 </html>

@@ -56,6 +56,14 @@ Business owners who need a quick, clear view of money coming in and going out �
   complaints (1–3★) / praise (4–5★) review feed; these are hidden otherwise
 - Read-only; same visual rules as the rest of the app (no red, 44px+ targets)
 
+### Exchange Rates (external public API)
+- A panel on the Overview with live ILS exchange rates (USD, EUR, GBP), a
+  30-day USD/ILS trend line, and the selected period's net balance converted
+  to those currencies
+- Data from the free Frankfurter API (ECB reference rates): no key, no token,
+  nothing secret in the repo; fails gracefully if offline
+- Display-only: transactions are still stored and totalled in ILS
+
 ## Non-Goals (for now)
 - Multi-currency support (ILS only for now)
 - Invoicing or payment processing
